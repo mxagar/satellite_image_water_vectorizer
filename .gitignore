@@ -127,3 +127,13 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Additonal
+.vscode
+.DS_Store
+eda_fe_summary
+space_exploration
+computer_vision_udacity
+data/*
+git_howto.txt
+python_manual.txt
