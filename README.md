@@ -1,25 +1,19 @@
 # Open Cosmos Challenge
 
-This is the challenge from Open Cosmos for the role *Data Scientist*, published in February 2023.
+This my solution to the challenge from Open Cosmos for the role *Data Scientist*, published in February 2023.
 
-
-More information:
-
-- [Challenge Instructions](./Data_Scientist_Challenge_Project.pdf)
-
-
-
-Intro.
+Synopsis - [challenge instructions](./Data_Scientist_Challenge_Project.pdf).
 
 <p style="text-align:center">
   <img src="./assets/word_cloud.png" alt="A wordcloud." width=1000px>
 </p>
 
-Questions:
+Tasks:
 
 1. A
 2. B
 3. C
+4. D
 
 ## Table of Contents
 
@@ -34,14 +28,38 @@ Questions:
   - [References, Links and Assets](#references-links-and-assets)
   - [Authorship and Terms of Use](#authorship-and-terms-of-use)
 
-## How to Use This Project
+## User Guide
 
 The directory of the project consists of the following files:
 
 ```
 .
-├── Instructions.md           # Original challenge instructions
-...
+├── Data_Scientist_Challenge_Project.pdf
+├── Dockerfile
+├── LICENSE.md
+├── README.md
+├── app
+├── assets
+│   └── OpenCosmos_DataScientist_JobOpening.pdf
+├── data
+│   ├── Scene 1 ...
+│   │   ├── B01_COG.tiff
+│   │   ├── ...
+│   │   ├── B12_COG.tiff
+│   │   └── lakes.geojson
+│   └── Scene 2 ...
+│       ├── B01_COG.tiff
+│       ├── ...
+│       ├── B12_COG.tiff
+│       └── lakes.geojson
+├── docker-compose.yaml
+├── geo_vectorizer
+├── notebooks
+├── requirements.txt
+├── conda.yaml
+├── tests
+│   └── conftest.py
+└── vectorize_water_blobs.py
 ```
 
 You can run the notebook at leas in two ways:
@@ -59,17 +77,14 @@ If you'd like to control where the notebook runs, you need to create a custom en
 ```bash
 # Create environment with YAML, incl. packages
 conda env create -f conda.yaml
-conda activate env-name
+conda activate cosmos
 # Or
-conda create --name env-name pip
-conda install <package>
+conda create --name cosmos pip python=3.10
+pip install -r requirements.txt
 
-# Install pip dependencies
-pip install requirements.txt
-
-# Track any changes and versions you have
-conda env export > conda_.yaml
-pip list --format=freeze > requirements_.txt
+# Track any changes and/or versions
+conda env export > conda.yaml
+pip list --format=freeze > requirements.txt
 ```
 
 List of most important dependencies:
@@ -77,9 +92,9 @@ List of most important dependencies:
 - A
 - B
 
-## Dataset
+## Dataset and Task
 
-## Notes on the Implemented Analysis
+## Notes on the Solution
 
 ### Summary and Conclusions
 
