@@ -1,11 +1,11 @@
 # Open Cosmos Challenge
 
-This is the challenge from Open Cosmos for the Data Scientist role.
+This is the challenge from Open Cosmos for the role *Data Scientist*, published in February 2023.
 
 
 More information:
 
-- [Challenge Instructions](./Data%20Scientist%20-%20Challenge%20Project.pdf)
+- [Challenge Instructions](./Data_Scientist_Challenge_Project.pdf)
 
 
 
@@ -29,10 +29,9 @@ Questions:
     - [Installing Dependencies for Custom Environments](#installing-dependencies-for-custom-environments)
   - [Dataset](#dataset)
   - [Notes on the Implemented Analysis](#notes-on-the-implemented-analysis)
-    - [Summary of Contents](#summary-of-contents)
-  - [Results and Conclusions](#results-and-conclusions)
+    - [Summary and Conclusions](#summary-and-conclusions)
   - [Next Steps, Improvements](#next-steps-improvements)
-  - [References and Links](#references-and-links)
+  - [References, Links and Assets](#references-links-and-assets)
   - [Authorship and Terms of Use](#authorship-and-terms-of-use)
 
 ## How to Use This Project
@@ -82,32 +81,56 @@ List of most important dependencies:
 
 ## Notes on the Implemented Analysis
 
-### Summary of Contents
+### Summary and Conclusions
 
-- [ ] A
-- [ ] B
+In the following, I provide a list of the submitted deliverables, both required and non-required contributions.
 
-## Results and Conclusions
+Accomplished main objectives:
+
+- [ ] Cropped image.
+- [ ] Computed NDVI and NDWI.
+- [ ] Extracted water body shapes.
+- [ ] Processed the water body shapes according to the GeoJSON.
+
+Additional, required:
+
+- [ ] Documented project.
+  - [ ] Interpretation (reasoning).
+  - [ ] Decisions: methods, tools (reasoning).
+- [ ] Slides.
+
+Extra contributions, non-required:
+
+- [ ] Python package.
+- [ ] Testing.
+- [ ] Logging.
+- [ ] Flask web app.
+- [ ] Containerization.
+
+All in all, 
 
 ## Next Steps, Improvements
 
-## References and Links
+## References, Links and Assets
 
 General links/assets related to the job opening:
 
 - [Open Cosmos](https://www.open-cosmos.com/)
 - [Open Cosmos: Data Scientist (Job Opening)](./assets/OpenCosmos_DataScientist_JobOpening.pdf)
 
-Interesting resources:
+Resources:
 
 - [space_exploration](https://github.com/mxagar/space_exploration)
 - [Sentinel 2 bands](https://sentinels.copernicus.eu/web/sentinel/user-guides/sentinel-2-msi/resolutions/spectral)
 - [Supported raster formats](https://gdal.org/drivers/raster/index.html)
 - [Supported vector formats](https://gdal.org/drivers/vector/)
 
-## Authorship and Terms of Use
+## Terms of Use, Authorship and License
+
+As stated in the instructions
+
+> [...] The rights to the images remain with the original holder and you must delete them when the project is completed.
+
+The software files in this work are protected by the GPL-v3.0 license; see [`LICENSE.md`](LICENSE.md) for more information.
 
 Mikel Sagardia, 2023.  
-No guarantees.
-
-
