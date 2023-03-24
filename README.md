@@ -139,6 +139,7 @@ Resources:
 - [Sentinel 2 bands](https://sentinels.copernicus.eu/web/sentinel/user-guides/sentinel-2-msi/resolutions/spectral)
 - [Supported raster formats](https://gdal.org/drivers/raster/index.html)
 - [Supported vector formats](https://gdal.org/drivers/vector/)
+- [`resample_raster.py`](https://gist.github.com/lpinner/13244b5c589cda4fbdfa89b30a44005b)
 
 ## Terms of Use, Authorship and License
 
