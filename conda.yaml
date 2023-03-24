@@ -1,0 +1,36 @@
+name: cosmos
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.10
+  - pip
+  - requests
+  - jupyter
+  - jupyterlab
+  - pytorch
+  - scikit-learn
+  - scipy
+  - numpy
+  - pandas
+  - matplotlib
+  - seaborn
+  - cython
+  - numba
+  - pillow
+  - scikit-image
+  - pip:
+      - opencv-python
+      - GDAL
+      - shapely
+      - geopandas
+      - mapclassify
+      #- spatial-index
+      - rtree
+      - rasterio
+      - rasterstats
+      - joblib
+      - autopep8
+      - pytest
+      - setuptools
+      - wheel
