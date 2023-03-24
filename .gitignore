@@ -137,3 +137,4 @@ computer_vision_udacity
 data/*
 git_howto.txt
 python_manual.txt
+notebooks/*.tiff
