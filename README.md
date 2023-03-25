@@ -126,6 +126,9 @@ All in all,
 
 ## Next Steps, Improvements
 
+- Persisting images
+- Histogram equalization.
+
 ## References, Links and Assets
 
 General links/assets related to the job opening:
