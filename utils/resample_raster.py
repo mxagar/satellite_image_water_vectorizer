@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+#from math import floor, ceil
 from contextlib import contextmanager
 
 import rasterio
@@ -30,6 +31,8 @@ def resample_res(dataset, xres, yres, resampling=Resampling.bilinear):
             dataset.count,
             int(dataset.height * scale_factor_y),
             int(dataset.width * scale_factor_x)
+            #ceil(dataset.height * scale_factor_y),
+            #ceil(dataset.width * scale_factor_x)
         ),
         resampling=resampling
     )
@@ -62,7 +65,9 @@ def resample_scale(dataset, scale, resampling=Resampling.bilinear):
     t = dataset.transform
     transform = t * t.scale((scale), (scale))
     height = int(dataset.height / scale)
-    width = int(dataset.width / scale)
+    width = int(dataset.width / scale)   
+    #height = ceil(dataset.height / scale)
+    #width = ceil(dataset.width / scale)
 
     profile = dataset.profile.copy()
     profile.update(transform=transform, driver='GTiff', height=height, width=width)
