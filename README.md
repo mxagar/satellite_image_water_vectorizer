@@ -102,14 +102,14 @@ In the following, I provide a list of the submitted deliverables, both required 
 
 Accomplished main objectives:
 
-- [ ] Cropped image.
-- [ ] Computed NDVI and NDWI.
-- [ ] Extracted water body shapes.
-- [ ] Processed the water body shapes according to the GeoJSON.
+- [x] Cropped bands.
+- [x] Computed NDVI and NDWI index maps.
+- [x] Extracted water body shapes.
+- [x] Processed the water body shapes according to the GeoJSON.
 
 Additional, required:
 
-- [ ] Documented project.
+- [x] Documented project.
   - [ ] Interpretation (reasoning).
   - [ ] Decisions: methods, tools (reasoning).
 - [ ] Slides.
@@ -119,15 +119,21 @@ Extra contributions, non-required:
 - [ ] Python package.
 - [ ] Testing.
 - [ ] Logging.
-- [ ] Flask web app.
-- [ ] Containerization.
 
 All in all, 
 
 ## Next Steps, Improvements
 
-- Persisting images
+- Persisting images: not really necessary.
 - Histogram equalization.
+- Resampling: is it really necessary?
+- NDWI of scene 2: useless; I decided to work with the NDVI.
+
+- Refactor: functions one-task only, OOP, SOLID principles, etc.
+
+- Flask web app.
+- Containerization.
+
 
 ## References, Links and Assets
 
