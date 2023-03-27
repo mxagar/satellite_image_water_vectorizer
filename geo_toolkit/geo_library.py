@@ -12,28 +12,14 @@ from glob import glob
 
 import numpy as np
 import pandas as pd
-import geopandas as gpd
-import contextily
-import matplotlib.pyplot as plt
-from matplotlib.patches import Polygon
-
-import earthpy as et
-import earthpy.spatial as es
-import earthpy.plot as ep
-from earthpy.spatial import bytescale
+#import geopandas as gpd
+#import matplotlib.pyplot as plt
 
 import rasterio as rio
-from rasterio.windows import Window
+from rasterio.mask import mask
 from rasterio.transform import Affine
-from rasterio.features import shapes
-from rasterio.plot import plotting_extent
-from rasterio.plot import show
-from rasterio.plot import reshape_as_raster, reshape_as_image
 
-from shapely.geometry import box
-from shapely.geometry import shape
-
-from .resample_raster import resample_res, resample_scale
+from .resample_raster import resample_res
 
 # Logging configuration
 logging.basicConfig(
@@ -67,6 +53,7 @@ def resample_persist_band(input_path,
     
     with rio.open(output_path, "w", **profile) as dataset:
         dataset.write(img)
+
 
 def resample_bands(band_paths,
                    resolution=(60,60),
@@ -110,7 +97,7 @@ def resample_bands(band_paths,
                          input_file)
             raise err
     
-    logger.info("resample_bands: bands correctly resamples and persisted!")
+    logger.info("resample_bands: bands correctly resampled and persisted!")
 
 
 # FIXME: refactor to two functions: crop & persist and use persistence manager
@@ -130,9 +117,9 @@ def crop_persist_band(input_path, output_path, shapes):
             (i.e., CRS, affine transformation matrix, etc.)
     """
     with rio.open(input_path, "r") as src:
-        out_image, out_transform = rio.mask.mask(src,
-                                                 shapes,
-                                                 crop=True)
+        out_image, out_transform = mask(src,
+                                        shapes,
+                                        crop=True)
         out_meta = src.meta
         out_meta.update({"driver": "GTiff",
                          "height": out_image.shape[1],
@@ -186,6 +173,8 @@ def crop_bands(band_paths,
             logger.error("resample_bands: input_file does not exist: %s",
                          input_file)
             raise err
+
+    logger.info("crop_bands: bands correctly cropped and persisted!")
 
 
 def load_band_image(filename, resample=False, resolution=(60,60)):
@@ -278,6 +267,8 @@ def load_bands(scene_path):
 
     # Pick one profile
     profile = profiles[0]
+    
+    logger.info("load_bands: bands + meta-data correctly loaded!")
 
     return band_arrays, band_names, profile
 
@@ -422,6 +413,7 @@ def generate_persist_ndmap(images,
     else:
         print(f"generate_persist_ndmap: not valid map_type: {map_type}")
 
+    # FIXME: use exception handling, as before
     # Store if we obtained something from compute_ndvi
     if ndmap.any() or ndmap_profile:    
         # Create new profile for NDVI image
@@ -438,7 +430,11 @@ def generate_persist_ndmap(images,
         with rio.open(output_path, 'w', **ndmap_profile) as ndmap_ds:
             ndmap_ds.write(ndmap, 1)
             ndmap_ds.transform = ndmap_transform
+
+        logger.info("generate_persist_ndvi: %s correctly generated and saved.", map_type)
+
     else:
-        print("generate_persist_ndvi: bands are missing to compute NDVI.")
+        logger.warning("generate_persist_ndvi: bands are missing to compute NDVI/NDWI.")
+  
     
     return ndmap, ndmap_profile
