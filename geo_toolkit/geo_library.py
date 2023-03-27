@@ -169,7 +169,7 @@ def crop_bands(band_paths,
         output_path = os.path.join(scene_path, output_folder)
         os.mkdir(output_path)
     except FileExistsError as err:
-        logger.info("resample_bands: processing output folder already exists: %s",
+        logger.info("crop_bands: processing output folder already exists: %s",
                     output_folder)
 
     # Crop all bands
@@ -183,7 +183,9 @@ def crop_bands(band_paths,
                                      output_path=output_file,
                                      shapes=gdf_bbox)
         except AssertionError as err:
-            print(f"crop_persist_band: input_file does not exist: {input_file}")
+            logger.error("resample_bands: input_file does not exist: %s",
+                         input_file)
+            raise err
 
 
 def load_band_image(filename, resample=False, resolution=(60,60)):
@@ -216,8 +218,69 @@ def load_band_image(filename, resample=False, resolution=(60,60)):
 
     return img, profile, band_name
 
-def load_images():
-    pass
+
+def load_bands(scene_path):
+    """Load band files as numpy arrays from a given
+    scene path which contains the files. Band files must have
+    the filename `*B?*.tiff`, being `?` the correct band number.
+    This function uses load_band_image().
+
+    Args:
+        scene_path (str): path which contains the band files to be loaded.
+
+    Returns:
+        band_arrays (numpy.ndarray): numpy array with band pixelmaps
+            with the shape (num_bands, width, height).
+        band_names (list[str]): band types/names: 1, 2, 3, ..., 12, 8A.
+        profile (dict): profile of the band files.
+    """
+    # Extract band paths
+    band_paths = glob(os.path.join(scene_path, "*B?*.tiff"))
+    band_paths.sort()
+    
+    # Check we have files
+    try:
+        assert len(band_paths) > 0
+    except AssertionError as err:
+        logger.error("load_bands: no (valid) band data in provided path: %s",
+                     scene_path)
+        raise err
+    
+    # Iterate through all files and load them
+    images = []
+    profiles = []
+    band_names = []
+    for band_filename in band_paths:
+        try:
+            assert os.path.isfile(band_filename)
+            img, profile, band_name = load_band_image(filename=band_filename,
+                                                      resample=False)
+            images.append(img)
+            profiles.append(profile)
+            band_names.append(band_name)        
+        except AssertionError as err:
+            logger.error("load_bands: no (valid) band data in provided path: %s",
+                        scene_path)
+            raise err
+
+    # Check: are they all resampled to the same size?
+    _, w, h = images[0].shape
+    try:
+        for i in images:
+            assert i.shape[1] == w
+            assert i.shape[2] == h
+    except AssertionError as err:
+        logger.error("load_bands: band pixelmaps have different sizes.")
+        raise err
+
+    # Stack all image channels/bands: (band, width, height)
+    band_arrays = np.stack(images).squeeze()
+
+    # Pick one profile
+    profile = profiles[0]
+
+    return band_arrays, band_names, profile
+
 
 def compute_ndvi(images, band_names):
     """Compute the Normalized Difference
@@ -379,4 +442,3 @@ def generate_persist_ndmap(images,
         print("generate_persist_ndvi: bands are missing to compute NDVI.")
     
     return ndmap, ndmap_profile
-
