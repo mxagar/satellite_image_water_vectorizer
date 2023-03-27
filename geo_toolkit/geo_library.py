@@ -50,7 +50,7 @@ logger = logging.getLogger()
 def resample_persist_band(input_path,
                           output_path,
                           resolution=(60,60)):
-    """Resample band pixelmap to spcified resolution
+    """Resample band pixelmap to specified resolution
     and persist.
     
     Args:
@@ -67,6 +67,50 @@ def resample_persist_band(input_path,
     
     with rio.open(output_path, "w", **profile) as dataset:
         dataset.write(img)
+
+def resample_bands(band_paths,
+                   resolution=(60,60),
+                   output_folder="processed"):
+    """Resample band pixelmaps to specified resolution
+    and persist them all. This function uses resample_persist_band().
+
+    Args:
+        band_paths (list[str]): list of all band paths.
+        resolution (tuple[number], optional): x and y resolution to resample.
+            Defaults to (60,60).
+        output_folder (str): local folder into which resampled bands are saved.
+            Defaults to "processed".
+
+    Returns: None.
+    """
+    # Extract scene path
+    scene_path = os.path.join(*band_paths[0].split(os.sep)[:-1])
+    
+    # FIXME: refactor to function?
+    # Create a folder to store all processed images images
+    try:
+        output_path = os.path.join(scene_path, output_folder)
+        os.mkdir(output_path)
+    except FileExistsError as err:
+        logger.info("resample_bands: processing output folder already exists: %s",
+                    output_folder)
+    
+    # Resample and save all files
+    for band in band_paths:
+        input_file = band
+        filename = input_file.split(os.sep)[-1]
+        output_file = os.path.join(scene_path, output_folder, filename)
+        try:
+            assert os.path.isfile(input_file)
+            resample_persist_band(input_path=input_file,
+                                  output_path=output_file,
+                                  resolution=resolution)
+        except AssertionError as err:
+            logger.error("resample_bands: input_file does not exist: %s",
+                         input_file)
+            raise err
+    
+    logger.info("resample_bands: bands correctly resamples and persisted!")
 
 
 # FIXME: refactor to two functions: crop & persist and use persistence manager
@@ -85,7 +129,7 @@ def crop_persist_band(input_path, output_path, shapes):
         out_meta (dict): dictionary with band information
             (i.e., CRS, affine transformation matrix, etc.)
     """
-    with rio.open(input_file, "r") as src:
+    with rio.open(input_path, "r") as src:
         out_image, out_transform = rio.mask.mask(src,
                                                  shapes,
                                                  crop=True)
@@ -94,10 +138,52 @@ def crop_persist_band(input_path, output_path, shapes):
                          "height": out_image.shape[1],
                          "width": out_image.shape[2],
                          "transform": out_transform})
-        with rio.open(output_file, "w", **out_meta) as dest:
+        with rio.open(output_path, "w", **out_meta) as dest:
             dest.write(out_image)
         
     return out_image, out_meta
+
+
+def crop_bands(band_paths,
+               gdf_bbox,
+               output_folder="processed"):
+    """Load bands from provided paths,
+    crop them according to the geometries in gdf_bbox
+    and persist them to the output_folder.
+    This function uses crop_persist_band().
+
+    Args:
+        band_paths (_type_): paths of the band files
+        gdf_bbox (gepandas.GeoSeries): iterable with geometries to crop.
+        output_folder (str): local folder into which resampled bands are saved.
+            Defaults to "processed".
+
+    Returns: None.
+    """
+    # Extract scene path
+    scene_path = os.path.join(*band_paths[0].split(os.sep)[:-1])
+
+    # FIXME: refactor to function?
+    # Create a folder to store all processed images images
+    try:
+        output_path = os.path.join(scene_path, output_folder)
+        os.mkdir(output_path)
+    except FileExistsError as err:
+        logger.info("resample_bands: processing output folder already exists: %s",
+                    output_folder)
+
+    # Crop all bands
+    for band in band_paths:
+        input_file = band
+        filename = input_file.split(os.sep)[-1]
+        output_file = os.path.join(scene_path, output_folder, filename)
+        try:
+            assert os.path.isfile(input_file)
+            _, _ = crop_persist_band(input_path=input_file,
+                                     output_path=output_file,
+                                     shapes=gdf_bbox)
+        except AssertionError as err:
+            print(f"crop_persist_band: input_file does not exist: {input_file}")
 
 
 def load_band_image(filename, resample=False, resolution=(60,60)):
@@ -130,6 +216,8 @@ def load_band_image(filename, resample=False, resolution=(60,60)):
 
     return img, profile, band_name
 
+def load_images():
+    pass
 
 def compute_ndvi(images, band_names):
     """Compute the Normalized Difference
