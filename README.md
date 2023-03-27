@@ -222,11 +222,17 @@ Scene 2 - NDWI:
 
 ### Objective 3: Extract Water Shapes
 
-In a regular situation, the NDWI map should be used to detect water bodies; however, since the scene 2 has no valid NDWI, I decided to employ the NDVI map instead &mdash; but, as already mentioned, the results are not convincing.
+In a regular situation, the NDWI map should be used to detect water bodies: pixels with an index value that passes a known threshold are expected to be water pixels; however, since the Scene 2 has no valid NDWI, I decided to employ the NDVI map instead. The rationale behind using the NDVI is that one could expect vegetation around water bodies &mdash; but, as already mentioned, the results are not convincing.
 
-In contrast, the same generic approach works correctly for Scene 1.
+In contrast, the implemented generic approach works correctly for Scene 1 (but using the NDWI map, as it should be the case).
 
-The following tasks are carried out:
+In case the NDWI or the relevant bands have a low quality, other approaches are worth trying to extract water bodies:
+
+- [Modified NDWI]((https://www.tandfonline.com/doi/abs/10.1080/01431160600589179?journalCode=tres20)): `(Green - SWIR)/(Green + SWIR)`; however, we lack of the `Green` band.
+- [Tasseled cap transformation](https://en.wikipedia.org/wiki/Tasseled_cap_transformation): the bands are transformed to a lower dimensional eigen-space using Principal Component Analysis (PCA) that might help detecting bright, green or wet bodies.
+- Create a pixel-wise classification model (i.e., semantic segmentation) which is trained on labeled data. Letting a supervised machine learning model automatically detect patterns on hyperspectral/multi-band images has been proven to be effective in recent years. The issue with this approach: we need annotated data; we could use Scene 1, but, probably, the bands should be calibrated so that the pixel values represent the same physics behind them.
+
+All in all, the following tasks are carried out to extract water shapes:
 
 - Load the saved NDVI or NDWI maps; each scene uses a different one.
 - Perform thresholding on the map to obtain a mask of the candidate water bodies.
@@ -243,12 +249,14 @@ Scene 2 - Water body polygons:
 
 ### Objective 4: Identify Lake Polygons
 
-We have a series of polygons that represent candidate water bodies; the goal is to select the polygons which contain or are closest to the target points provided in the challenge; then, the filtered polygons are tagged with the point id.
+After accomplishing the previous objective, we have a series of polygons that represent candidate water bodies; now, the goal is to select the polygons which contain or are closest to the target points provided in the challenge. Then, the filtered polygons are tagged with the point id.
 
-The following steps are taken:
+Scene 1 yields good results; Scene 2 has small polygons close to the target points, but these are not probably lakes/water bodies.
 
-- Filter the water body polygons: take the ones which contain or are closest to the target points.
-- Assemble GeoDataFrame and save it to disk.
+The following steps are taken to id the polygons:
+
+- Filter the water body polygons: take the ones which contain or are closest to the target points using built-in `contains()` and `distance()` methods from GeoPandas.
+- Assemble GeoDataFrame and save it to disk as a GeoJSON.
 - Plot the final result: masked raster + select water polygons + original target points
 
 Scene 1 - Identified lake polygons:
@@ -316,6 +324,11 @@ Resources:
 - [Supported raster formats](https://gdal.org/drivers/raster/index.html)
 - [Supported vector formats](https://gdal.org/drivers/vector/)
 - [`resample_raster.py`](https://gist.github.com/lpinner/13244b5c589cda4fbdfa89b30a44005b)
+
+Literature:
+
+- [Xu et al., 2007. *Modification of normalised difference water index (NDWI) to enhance open water features in remotely sensed imagery*](https://www.tandfonline.com/doi/abs/10.1080/01431160600589179?journalCode=tres20)
+
 
 ## Terms of Use, Authorship and License
 
