@@ -270,6 +270,10 @@ Scene 2 - Identified lake polygons:
 ### Production Environment
 
 
+- `resample_bands()`
+- `crop_bands()`
+- `load_bands()`
+
 ### Summary and Conclusions
 
 In the following, I provide a list of the submitted deliverables, both required and non-required contributions.
