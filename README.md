@@ -85,6 +85,8 @@ Then, we need to create a custom environment and install the required dependenci
 conda create --name cosmos pip python=3.10
 conda activate cosmos
 pip install -r requirements.txt
+# Install the geo_toolkit library
+pip install .
 ```
 
 List of the most relevant dependencies installed with `requirements.txt` (see versions in the file):
