@@ -1,0 +1,11 @@
+data_path: "data/Scene 1 - S2A_MSIL1C_20230223T112111_N0509_R037_T30UVF_20230223T145910"
+output_folder: "processed"
+resolution:
+  - 60 # x
+  - 60 # y
+crop_bbox:
+  - -3.480290297664652
+  - 54.26510479276385
+  - -2.9010711619639267
+  - 54.61995328561707
+target_points_filename: "lakes.geojson"
