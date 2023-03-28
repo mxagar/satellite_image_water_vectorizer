@@ -311,6 +311,7 @@ All in all,
 - NDWI of scene 2: useless; I decided to work with the NDVI.
 
 - Refactor: functions one-task only, OOP, SOLID principles, etc.
+- Configuration file.
 
 - Flask web app.
 - Containerization.
