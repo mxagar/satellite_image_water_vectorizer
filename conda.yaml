@@ -32,6 +32,7 @@ dependencies:
       - rasterio
       - rasterstats
       - joblib
+      - pylint
       - autopep8
       - pytest
       - setuptools
