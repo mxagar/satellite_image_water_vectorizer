@@ -1,17 +1,30 @@
 """This module contains several functions to
-process geospatial rasters.
+process geospatial rasters. Specifically,
+these functions are implemented and documented:
+
+    resample_persist_band()
+    resample_bands()
+    crop_persist_band()
+    crop_bands()
+    load_band_image()
+    load_bands()
+    compute_ndvi()
+    compute_ndwi()
+    generate_persist_ndmap()
+
+Pylint: 9.29/10.
 
 Author: Mikel Sagardia
 Date: 2023-03-27
 """
 
-import sys
+#import sys
 import os
 import logging
 from glob import glob
 
 import numpy as np
-import pandas as pd
+#import pandas as pd
 #import geopandas as gpd
 #import matplotlib.pyplot as plt
 
@@ -25,7 +38,7 @@ from .resample_raster import resample_res
 logging.basicConfig(
     filename='./geo_processing.log', # filename, where it's dumped
     level=logging.INFO, # minimum level I log
-    filemode='w', # append
+    filemode='a', # append
     format='%(name)s - %(asctime)s - %(levelname)s - %(message)s')
     # add function/module name for tracing
 # Thi will be imported in the rest of the modules
@@ -50,7 +63,7 @@ def resample_persist_band(input_path,
     yres = resolution[1]
     with rio.open(input_path, 'r') as src:
         img, profile = resample_res(src, xres, yres)
-    
+
     with rio.open(output_path, "w", **profile) as dataset:
         dataset.write(img)
 
@@ -72,7 +85,7 @@ def resample_bands(band_paths,
     """
     # Extract scene path
     scene_path = os.path.join(*band_paths[0].split(os.sep)[:-1])
-    
+
     # FIXME: refactor to function?
     # Create a folder to store all processed images images
     try:
@@ -81,7 +94,7 @@ def resample_bands(band_paths,
     except FileExistsError as err:
         logger.info("resample_bands: processing output folder already exists: %s",
                     output_folder)
-    
+
     # Resample and save all files
     for band in band_paths:
         input_file = band
@@ -96,7 +109,7 @@ def resample_bands(band_paths,
             logger.error("resample_bands: input_file does not exist: %s",
                          input_file)
             raise err
-    
+
     logger.info("resample_bands: bands correctly resampled and persisted!")
 
 
@@ -105,12 +118,12 @@ def crop_persist_band(input_path, output_path, shapes):
     """Load band from input path,
     crop it according to the geometries in shapes
     and persist to filepath in output_path.
-    
+
     Args:
         input_path (str): path of the band file
         output_path (str): path to persist cropped band
         shapes (gepandas.GeoSeries): iterable with geometries to crop
-    
+
     Returns:
         out_image (numpy.ndarray): copped image/band array
         out_meta (dict): dictionary with band information
@@ -127,7 +140,7 @@ def crop_persist_band(input_path, output_path, shapes):
                          "transform": out_transform})
         with rio.open(output_path, "w", **out_meta) as dest:
             dest.write(out_image)
-        
+
     return out_image, out_meta
 
 
@@ -180,7 +193,7 @@ def crop_bands(band_paths,
 def load_band_image(filename, resample=False, resolution=(60,60)):
     """Load a band file and resample (resize) it
     if required.
-    
+
     Args:
         filename (str): filename of the band/channel image pixelmap
         resample (bool): resample/resize or not (default: False)
@@ -226,7 +239,7 @@ def load_bands(scene_path):
     # Extract band paths
     band_paths = glob(os.path.join(scene_path, "*B?*.tiff"))
     band_paths.sort()
-    
+
     # Check we have files
     try:
         assert len(band_paths) > 0
@@ -234,7 +247,7 @@ def load_bands(scene_path):
         logger.error("load_bands: no (valid) band data in provided path: %s",
                      scene_path)
         raise err
-    
+
     # Iterate through all files and load them
     images = []
     profiles = []
@@ -267,7 +280,7 @@ def load_bands(scene_path):
 
     # Pick one profile
     profile = profiles[0]
-    
+
     logger.info("load_bands: bands + meta-data correctly loaded!")
 
     return band_arrays, band_names, profile
@@ -318,7 +331,7 @@ def compute_ndwi(images, band_names):
          = (B3 - B8) / (B3 + B8)
 
     or, in the absence of Green (B3)
-        
+
     NDWI = (NIR - SWIR) / (NIR + SWIR) (approx.)
          = (B8A - B12) / (B8A + B12) (approx.)
          = (B8A - B11) / (B8A + B11) (approx.
@@ -340,7 +353,7 @@ def compute_ndwi(images, band_names):
     swir_11_idx = None
     ndwi = None
     standard = False
-    
+
     # Get the indices of the Red and NIR bands
     green_idx = band_names.index('03') if '03' in band_names else None
     nir_idx = band_names.index('8A') if '8A' in band_names else None
@@ -355,7 +368,7 @@ def compute_ndwi(images, band_names):
             swir_idx = swir_12_idx
         elif swir_11_idx:
             swir_idx = swir_11_idx
-    
+
     if standard:
         # NDWI = (Green - NIR) / (Green + NIR)
         green_band = images[green_idx].squeeze()
@@ -364,7 +377,7 @@ def compute_ndwi(images, band_names):
         # Compute NDWI; default fivision by 0 to 0
         with np.errstate(divide='ignore', invalid='ignore'):
             ndwi = np.nan_to_num((green_band - nir_band) / (green_band + nir_band))
-            
+
     elif swir_idx:
         # NDWI = (NIR - SWIR) / (NIR + SWIR) (approx.)
         swir_band = images[swir_idx].squeeze()
@@ -384,10 +397,10 @@ def generate_persist_ndmap(images,
                            map_type="ndvi"):
     """Compute and store a normalized difference map,
     either:
-    
+
     - Normalized Difference Vegetation Index (NDVI), or
     - Normalized Difference Water Index (NDWI)
-    
+
     Args:
         images (numpy.ndarray): array with images
             in a 3D shape: band, width, height
@@ -404,7 +417,7 @@ def generate_persist_ndmap(images,
     # Initialize
     ndmap = None
     ndmap_profile = None
-    
+
     # Compute NDVI
     if map_type == "ndvi":
         ndmap = compute_ndvi(images, band_names)
@@ -424,7 +437,12 @@ def generate_persist_ndmap(images,
 
         # Create a transform for the NDVI image
         transform = profile['transform']
-        ndmap_transform = Affine(transform.a, transform.b, transform.c, transform.d, transform.e, transform.f)
+        ndmap_transform = Affine(transform.a,
+                                 transform.b,
+                                 transform.c,
+                                 transform.d,
+                                 transform.e,
+                                 transform.f)
 
         # Write the NDVI image to disk
         with rio.open(output_path, 'w', **ndmap_profile) as ndmap_ds:
@@ -435,6 +453,5 @@ def generate_persist_ndmap(images,
 
     else:
         logger.warning("generate_persist_ndvi: bands are missing to compute NDVI/NDWI.")
-  
-    
+
     return ndmap, ndmap_profile
