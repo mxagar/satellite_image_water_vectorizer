@@ -41,35 +41,72 @@ The directory of the project consists of the following files:
 
 ```
 .
-├── Data_Scientist_Challenge_Project.pdf
-├── Dockerfile
+├── Data_Scientist_Challenge_Project.pdf        # Original instructions
 ├── LICENSE.md
-├── README.md
-├── app
-├── assets
-│   └── OpenCosmos_DataScientist_JobOpening.pdf
-├── data
+├── README.md                                   # Documentation + report
+├── Slides.pdf                                  # Presentation
+├── assets/                                     # Images used in the report, etc.
+│   └── ...
+├── conda.yaml                                  # Conda environment file (better, use requirements.txt)
+├── config_test.yaml
+├── data                                        # Original dataset
 │   ├── Scene 1 ...
 │   │   ├── B01_COG.tiff
 │   │   ├── ...
-│   │   ├── B12_COG.tiff
-│   │   └── lakes.geojson
+│   │   ├── B8A_COG.tiff
+│   │   ├── lakes.geojson
+│   │   └── processed/                          # Outcomes from processing
+│   │       └── ...
 │   └── Scene 2 ...
 │       ├── B01_COG.tiff
 │       ├── ...
-│       ├── B12_COG.tiff
-│       └── lakes.geojson
-├── docker-compose.yaml
-├── geo_vectorizer
-├── notebooks
-├── requirements.txt
-├── conda.yaml
-├── tests
-│   └── conftest.py
-└── vectorize_water_blobs.py
+│       ├── B8A_COG.tiff
+│       ├── lakes.geojson
+│       └── processed/                          # Outcomes from processing
+│           └── ...
+├── geo_processing.log                          # Logs
+├── geo_toolkit                                 # Library/package
+│   ├── __init__.py
+│   ├── geo_library.py
+│   └── resample_raster.py
+├── notebooks                                   # Research environment notebook
+│   └── Geospatial_Image_Analysis.ipynb
+├── requirements.txt                            # Environment dependencies
+├── results                                     # Final results, taken from data/.../processed
+│   ├── scene_1/
+│   │   ├── B01_COG.tiff
+│   │   ├── ...
+│   │   ├── B8A_COG.tiff
+│   │   ├── ndvi.tiff
+│   │   ├── ndwi.tiff
+│   │   ├── scene_1_lake_polygons.geojson
+│   │   └── scene_1_lake_polygons.png
+│   └── scene_2
+│       ├── B01_COG.tiff
+│       ├── ...
+│       ├── B8A_COG.tiff
+│       ├── ndvi.tiff
+│       ├── ndwi.tiff
+│       ├── scene_2_lake_polygons.geojson
+│       └── scene_2_lake_polygons.png
+├── setup.py                                    # Package installation file
+├── tests                                       # Pytest tests for the package
+│   ├── __init__.py
+│   ├── conftest.py
+│   └── test_geo_library.py
+├── utils                                       # Resampling utility script
+│   └── resample_raster.py
+└── vectorize_water_blobs.py                    # Main application file to use the library
 ```
 
-As mentioned in the 
+The final result files related to the 4 objectives are located in the folder [`results`](./results/); additionally, the present `README.md` contains the documentation of the project as well as the report with the learned insights. Finally, the [`Slides.pdf`](./Slides.pdf) contain the presentation.
+
+After setting up the correct environment, there are two ways of using/running the project:
+
+1. Open the notebook [`Geospatial_Image_Analysis.ipynb`](notebooks/Geospatial_Image_Analysis.ipynb) and execute all cells in sequence. The variable `SCENE` needs to be set at the beginning to run the processing for each of the scenes 1 or 2. The notebook guides the user with comments and text about the followed reasoning.
+2. Run the script [`vectorize_water_blobs.py`](vectorize_water_blobs.py) which uses the library [`geo_toolkit`](geo_toolkit) to perform the same processing. The outcome is the same as with the notebook, but in this case the code has been transformed to a production environment following PEP8 conventions, logging, etc. In the script, the `SCENE` needs to be selected, too.
+
+In the following sub-sections, practical commands for setting up the environment and running the application are shown.
 
 ### Installing Dependencies for Custom Environments
 
@@ -84,9 +121,9 @@ Then, we need to create a custom environment and install the required dependenci
 # Create an environment and install the dependencies
 conda create --name cosmos pip python=3.10
 conda activate cosmos
-pip install -r requirements.txt
+python -m pip install -r requirements.txt
 # Install the geo_toolkit library
-pip install .
+python -m pip install .
 ```
 
 List of the most relevant dependencies installed with `requirements.txt` (see versions in the file):
@@ -101,6 +138,33 @@ List of the most relevant dependencies installed with `requirements.txt` (see ve
 - Shapely
 
 All these libraries are open source and support the most common formats, as required in the challenge description.
+
+### Running the Notebook
+
+Assuming all the dependencies have been installed, open a terminal and execute these commands:
+
+```bash
+cd notebooks
+jupyter lab .
+# Open Geospatial_Image_Analysis.ipynb
+```
+
+The notebook guides us. First, we need to choose the value for `SCENE` and then we can execute the cells in sequence. The resulting files are persisted in the `processed` folder of each scene.
+
+### Run the Python Application Script
+
+Assuming all the dependencies have been installed, open a terminal and execute these commands:
+
+```bash
+python vectorize_water_blobs.py
+# Wait for execution
+# Final image appears
+# geo_processing.log contains logging info
+```
+
+There is no guiding, but the code has been transformed to a production environment. Similarly, the resulting files are persisted in the `processed` folder of each scene.
+
+NOTE: Here also, we need to choose the value for `SCENE` in the `vectorize_water_blobs.py` script.
 
 ## Dataset and Preliminary Exploration
 
@@ -144,13 +208,13 @@ After transforming all the data into the CRS of the bands (`EPSG:32630`), a plot
 
 ## Notes on the Solution
 
-In the following, the methods and decisions followed for each objective are described, as well as the major results. Note that the output files are in the folder [`results`](resullts).
+In the following, the methods and decisions followed for each objective are described, as well as the major results. Note that the output files are in the folder [`results`](results).
 
 ### Objective 1: Resample, Crop and Persist Rasters
 
 Even though *resampling* to the minimum available resolution (60m) is not required in the challenge description, it facilitates many subsequent steps, since all pixelmaps have the same standardized size. That comes with the cost of losing resolution. Additionally, it should be considered that the ultimate maps required to extract the lake polygons (NDVI and NDWI) are computed with bands that share the same resolution, which is larger than the minimum one.
 
-However, I understand that the goal consists in building a valid proof-of-concept and showing my skills, therefore, I have decided to choose the most comfortable path: resampling to the minimum resolution. In a real world scenario, I would not do that; instead, I would try to use the maximum available resolution.
+However, I understand that the goal consists in building a valid proof-of-concept and showing my skills, therefore, I have decided to choose the most comfortable path: resampling to the minimum resolution in the notebooks. In the package/scripts, the resampling can be easily switched off.
 
 Once the bands are resampled, it is possible to stack them and to work with all of them together. Cropping is easily achieved with rasterio.
 
@@ -271,10 +335,26 @@ Scene 2 - Identified lake polygons:
 
 ### Production Environment
 
+The production code is organized as follows:
+
+- A library/package [`geo_toolkit`](geo_toolkit) which contains generic and reusable functions in [`geo_toolkit/geo_library.py`](geo_toolkit/geo_library.py).
+- A python script [`vectorize_water_blobs.py`](vectorize_water_blobs.py) which uses the library and has code with fine-tuned parameters.
+
+Since the code in the notebook was modularized, creating a package/library was easy. In addition to the functions in the notebooks, I have created these new ones:
 
 - `resample_bands()`
 - `crop_bands()`
 - `load_bands()`
+
+The production code is PEP8-conform (linted) and uses logging as well as exception handling.
+
+Finally, testing was added using Pytest in the folder [`tests`](tests); to use it:
+
+```bash
+pytest tests
+```
+
+Currently, only one function is tested; of course, in a regular environment, all functions should be tested.
 
 ### Summary and Conclusions
 
@@ -282,10 +362,10 @@ In the following, I provide a list of the submitted deliverables, both required 
 
 Accomplished main objectives:
 
-- [x] Cropped bands.
-- [x] Computed NDVI and NDWI index maps.
-- [x] Extracted water body shapes.
-- [x] Processed the water body shapes according to the GeoJSON.
+- [x] Cropped bands (scenes 1 & 2).
+- [x] Computed NDVI and NDWI index maps (scenes 1 & 2).
+- [x] Extracted water body shapes (scene 1; results for scene 2 are not that promising)
+- [x] Processed the water body shapes according to the GeoJSON (scenes 1 & 2; the polygons for scene 2 are probably not correct because the input blobs are not good).
 
 Additional, required:
 
@@ -293,29 +373,27 @@ Additional, required:
   - [x] Interpretation.
   - [x] Decisions: methods, tools.
 - [x] Report
-- [ ] Slides.
+- [x] Slides.
 
 Extra contributions, non-required:
 
-- [ ] Python package.
-- [ ] Testing.
-- [ ] Logging.
+- [x] Python package: PEP8-conform, linted.
+- [x] Testing with Pytest.
+- [x] Logging.
 
-All in all, 
+## Limitations, Improvements
 
-## Next Steps, Improvements
-
-- Persisting images: not really necessary.
-- Histogram equalization.
-- Resampling: is it really necessary?
-- NDWI of scene 2: useless; I decided to work with the NDVI.
-
+- Persisting images in different stages: not really necessary?
+- Try histogram equalization for band 10?
+- Resampling: make it clearly optional.
+- NDWI of scene 2: seems useless; I decided to work with the NDVI, which is conceptually wrong.
+- Try other approaches to detect water bodies in scene 2; see for instance [space_exploration](https://github.com/mxagar/space_exploration).
+  - Tasseled cap transformation.
+  - Create a pixel-wise classification model.
 - Refactor: functions one-task only, OOP, SOLID principles, etc.
-- Configuration file.
-
-- Flask web app.
-- Containerization.
-
+- Configuration file for the production environment, similar to [`config_test.yaml`](./config_test.yaml)
+- Flask web app; see for instance [disaster_response_pipeline](https://github.com/mxagar/disaster_response_pipeline).
+- Containerization; see for instance [census_model_deployment_fastapi](https://github.com/mxagar/census_model_deployment_fastapi).
 
 ## References, Links and Assets
 
