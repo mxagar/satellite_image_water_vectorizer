@@ -134,7 +134,9 @@ dmypy.json
 eda_fe_summary
 space_exploration
 computer_vision_udacity
-data/*
+data/scene_*
 git_howto.txt
 python_manual.txt
 notebooks/*.tiff
+Slides.key
+Slides.pdf
