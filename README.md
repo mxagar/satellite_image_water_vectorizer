@@ -1,17 +1,13 @@
-# Open Cosmos Challenge
+# Water Body Vectorization in Satellite Images
 
-This my solution to the [Open Cosmos](https://www.open-cosmos.com/) challenge for the *Data Scientist* role, published in February/March 2023.
-
-In the challenge, two scenes captured by Sentinel 2 are provided, along with a Region of Interest (ROI) and a set of target points for each scene. The **objectives** are:
+In this mini-project, two scenes captured by the Sentinel 2 satellite are processed to end up with vectorized water bodies contained in them. The data for each scene consists of the usual 13 raster bands as well as a Region of Interest (ROI) and a set of target points; each ROI contains the water bodies to vectorize and the points are contained in the water bodies. The vectorization is performed following these steps:
 
 1. Crop all the bands in each scene to their associated ROI.
 2. Compute the NDVI and NDWI maps of the cropped bands.
 3. Extract the inland water body shapes in the cropped bands.
 4. Identify the shapes of the water bodies associated with the provided sets of points and store them in a vectorized format.
 
-The complete set of instructions is in the file [`Data_Scientist_Challenge_Project.pdf`](Data_Scientist_Challenge_Project.pdf).
-
-This figure shows the RGB image of the scene 1 and its final result (objective 4):
+This figure shows the RGB image of the scene 1 and its final result (step 4):
 
 <p style="text-align:center">
   <img src="./assets/scene_1.jpg" alt="RGB image of scene 1." width=300px>
@@ -24,16 +20,25 @@ The remainder of this document explains the structure of the repository, how to 
 
 ## Table of Contents
 
-- [Open Cosmos Challenge](#open-cosmos-challenge)
+- [Water Body Vectorization in Satellite Images](#water-body-vectorization-in-satellite-images)
   - [Table of Contents](#table-of-contents)
-  - [How to Use This Project](#how-to-use-this-project)
+  - [User Guide](#user-guide)
     - [Installing Dependencies for Custom Environments](#installing-dependencies-for-custom-environments)
-  - [Dataset](#dataset)
-  - [Notes on the Implemented Analysis](#notes-on-the-implemented-analysis)
+    - [Running the Notebook](#running-the-notebook)
+    - [Run the Python Application Script](#run-the-python-application-script)
+  - [Dataset and Preliminary Exploration](#dataset-and-preliminary-exploration)
+    - [Scene 1](#scene-1)
+    - [Scene 2](#scene-2)
+  - [Notes on the Solution](#notes-on-the-solution)
+    - [Objective 1: Resample, Crop and Persist Rasters](#objective-1-resample-crop-and-persist-rasters)
+    - [Objective 2: Compute the NDVI and the NDWI Maps](#objective-2-compute-the-ndvi-and-the-ndwi-maps)
+    - [Objective 3: Extract Water Shapes](#objective-3-extract-water-shapes)
+    - [Objective 4: Identify Lake Polygons](#objective-4-identify-lake-polygons)
+    - [Production Environment](#production-environment)
     - [Summary and Conclusions](#summary-and-conclusions)
-  - [Next Steps, Improvements](#next-steps-improvements)
+  - [Limitations, Improvements](#limitations-improvements)
   - [References, Links and Assets](#references-links-and-assets)
-  - [Authorship and Terms of Use](#authorship-and-terms-of-use)
+  - [Terms of Use, Authorship and License](#terms-of-use-authorship-and-license)
 
 ## User Guide
 
@@ -401,6 +406,7 @@ General links/assets related to the job opening:
 
 - [Open Cosmos](https://www.open-cosmos.com/)
 - [Open Cosmos: Data Scientist (Job Opening)](./assets/OpenCosmos_DataScientist_JobOpening.pdf)
+- [chrieke/awesome-geospatial-companies](https://github.com/chrieke/awesome-geospatial-companies)
 
 Resources:
 
