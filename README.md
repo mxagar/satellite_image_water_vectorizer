@@ -429,4 +429,4 @@ Literature:
 All the software files in this work except [`resample_raster.py`](utils/resample_raster.py) are protected by the GPL-v3.0 license; see [`LICENSE.md`](LICENSE.md) for more information. The file [`resample_raster.py`](utils/resample_raster.py) is protected by the [Apache License v2.0 license](http://www.apache.org/licenses/LICENSE-2.0).
 
 Mikel Sagardia, 2023.  
-[https://mikelsagardia.io]([https://mikelsagardia.io)
+[https://mikelsagardia.io](https://mikelsagardia.io)
