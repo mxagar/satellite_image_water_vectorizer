@@ -40,13 +40,13 @@ if __name__ == '__main__':
 
     # These paths should contain the contents of the original challenge
     DATA_PATH = "./data/"
-    SCENE_1_PATH = DATA_PATH + "Scene 1 - S2A_MSIL1C_20230223T112111_N0509_R037_T30UVF_20230223T145910"
-    SCENE_2_PATH = DATA_PATH + "Scene 2 - S2B_MSIL1C_20230102T113359_N0509_R080_T30UWG_20230102T121121"
+    SCENE_1_PATH = DATA_PATH + "scene_1"
+    SCENE_2_PATH = DATA_PATH + "scene_2"
     OUTPUT_FOLDER = "processed"
 
-    # Lng/Lat format in EPSG:4326 - WGS84, located in the UK
-    SCENE_1_BBOX = [-3.480290297664652, 54.26510479276385, -2.9010711619639267, 54.61995328561707]
-    SCENE_2_BBOX = [-2.815247, 55.102730, -1.450195, 55.553495]
+    # Lng/Lat format in EPSG:4326
+    SCENE_1_BBOX = [12.276740855204856, 47.76998650888808, 12.830008478699462, 48.06602436853697]
+    SCENE_2_BBOX = [10.9448829067118, 47.73548843800481, 11.393297391882829, 48.143490914959585]
 
     SCENE_PATH = SCENE_1_PATH
     SCENE_BBOX = SCENE_1_BBOX
@@ -66,7 +66,7 @@ if __name__ == '__main__':
     gdf_points = gpd.read_file(os.path.join(SCENE_PATH, 'lakes.geojson'))
 
     # Load band filenames
-    band_paths = glob(os.path.join(SCENE_PATH, "*B?*.tiff"))
+    band_paths = glob(os.path.join(SCENE_PATH, "/*B?*.jp2"))
     band_paths.sort()
 
     # Load raster src to get CRS
@@ -77,7 +77,7 @@ if __name__ == '__main__':
     gdf_points = gdf_points.to_crs(src.crs)
     gdf_bbox = gdf_bbox.to_crs(src.crs)
 
-    ## -- Objective 1: Resample, Crop and Persist Rasters
+    ## -- Step 1: Resample, Crop and Persist Rasters
 
     resample_bands(band_paths,
                    resolution=(60,60),
@@ -88,7 +88,7 @@ if __name__ == '__main__':
     scene_path_ = os.path.join(SCENE_PATH, OUTPUT_FOLDER)
 
     # Re-load band filenames, after resampling
-    band_paths = glob(os.path.join(scene_path_, "*B?*.tiff"))
+    band_paths = glob(os.path.join(scene_path_, "*B?*.jp2"))
     band_paths.sort()
 
     crop_bands(band_paths,
@@ -98,7 +98,7 @@ if __name__ == '__main__':
 
     band_arrays, band_names, profile = load_bands(scene_path_)
 
-    ## -- Objective 2: Compute the NDVI and the NDWI Maps
+    ## -- Step 2: Compute the NDVI and the NDWI Maps
 
     maps = ["ndvi", "ndwi"]
     for ndi in maps:
@@ -109,12 +109,10 @@ if __name__ == '__main__':
                                                     output_path,
                                                     map_type=ndi)
 
-    ## -- Objective 3: Extract Water Shapes
+    ## -- Step 3: Extract Water Shapes
 
     # Load ND-map raster file
     filename = "ndwi.tiff"
-    if SCENE == 2:
-        filename = "ndvi.tiff"
     ndmap_filepath = os.path.join(SCENE_PATH, OUTPUT_FOLDER, filename)
 
     try:
@@ -130,17 +128,9 @@ if __name__ == '__main__':
     # Compute mask (thresholding)
     ndmap_threshold = 0.3
     value_mask = 1
-    water_mask = None
-    if SCENE == 1: # NDWI
-        water_mask = np.where(ndmap > ndmap_threshold,
-                              abs(value_mask-1),
-                              value_mask)
-    elif SCENE == 2: # NDVI
-        ndmap_threshold = 0.02
-        value_mask = 1
-        water_mask = np.where(ndmap < ndmap_threshold,
-                              value_mask,
-                              abs(value_mask-1))
+    water_mask = np.where(ndmap > ndmap_threshold,
+                            abs(value_mask-1),
+                            value_mask)
     logger.info("main: index map correctly masked.")
 
     # Generate polygons from water bodies
@@ -160,7 +150,7 @@ if __name__ == '__main__':
     # Convert water polygons to geoseries
     water_geoseries = gpd.GeoSeries(water_polygons, crs=ndmap_crs)
 
-    ## -- Objective 4: Identify Lake Polygons
+    ## -- Step 4: Identify Lake Polygons
 
     # Filter water body polygons:
     # take the ones which contain or are closest to the target points.

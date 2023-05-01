@@ -176,6 +176,7 @@ def crop_bands(band_paths,
     for band in band_paths:
         input_file = band
         filename = input_file.split(os.sep)[-1]
+        filename = filename.split('.')[0] + '.tiff'
         output_file = os.path.join(scene_path, output_folder, filename)
         try:
             assert os.path.isfile(input_file)
@@ -209,7 +210,8 @@ def load_band_image(filename, resample=False, resolution=(60,60)):
     yres = resolution[1]
     resample = True
     # FIXME: use regex in future, or a more generic way...
-    band_name = filename.split(os.sep)[-1][1:3]
+    #band_name = filename.split(os.sep)[-1][1:3]
+    band_name = filename.split(os.sep)[-1][-11:-9]
     with rio.open(filename, 'r') as src:
         img = None
         profile = None
@@ -357,6 +359,7 @@ def compute_ndwi(images, band_names):
     # Get the indices of the Red and NIR bands
     green_idx = band_names.index('03') if '03' in band_names else None
     nir_idx = band_names.index('8A') if '8A' in band_names else None
+    #nir_idx = band_names.index('08') if '08' in band_names else None    
     swir_idx = band_names.index('12') if '12' in band_names else None
     swir_11_idx = band_names.index('11') if '11' in band_names else None
 
