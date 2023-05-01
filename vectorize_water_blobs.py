@@ -35,8 +35,8 @@ if __name__ == '__main__':
     ## -- Initialization: Constants, Variables, CRS, etc.
 
     # Choose the scene number
-    SCENE = 1
-    #SCENE = 2
+    #SCENE = 1
+    SCENE = 2
 
     # These paths should contain the contents of the original challenge
     DATA_PATH = "./data/"
@@ -66,7 +66,7 @@ if __name__ == '__main__':
     gdf_points = gpd.read_file(os.path.join(SCENE_PATH, 'lakes.geojson'))
 
     # Load band filenames
-    band_paths = glob(os.path.join(SCENE_PATH, "/*B?*.jp2"))
+    band_paths = glob(os.path.join(SCENE_PATH, "*B?*.jp2"))
     band_paths.sort()
 
     # Load raster src to get CRS
