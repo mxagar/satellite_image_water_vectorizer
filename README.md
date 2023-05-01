@@ -14,7 +14,7 @@ This figure shows the RGB image of the scene 1 and its final result (step 4):
   <img src="./assets/scene_1_lake_polygons.png" alt="Identified water body (lake) polygons of scene 1." width=300px>
 </p>
 
-The remainder of this document explains the structure of the repository, how to use it and the reasoning behind the performed analysis to accomplish all objectives for both scenes.
+The remainder of this document explains the structure of the repository, how to use it and the reasoning behind the performed analysis to accomplish all steps for both scenes.
 
 :warning: **Important**: the result files are located in [`results`](results).
 
@@ -30,10 +30,10 @@ The remainder of this document explains the structure of the repository, how to 
     - [Scene 1](#scene-1)
     - [Scene 2](#scene-2)
   - [Notes on the Solution](#notes-on-the-solution)
-    - [Objective 1: Resample, Crop and Persist Rasters](#objective-1-resample-crop-and-persist-rasters)
-    - [Objective 2: Compute the NDVI and the NDWI Maps](#objective-2-compute-the-ndvi-and-the-ndwi-maps)
-    - [Objective 3: Extract Water Shapes](#objective-3-extract-water-shapes)
-    - [Objective 4: Identify Lake Polygons](#objective-4-identify-lake-polygons)
+    - [Step 1: Resample, Crop and Persist Rasters](#step-1-resample-crop-and-persist-rasters)
+    - [Step 2: Compute the NDVI and the NDWI Maps](#step-2-compute-the-ndvi-and-the-ndwi-maps)
+    - [Step 3: Extract Water Shapes](#step-3-extract-water-shapes)
+    - [Step 4: Identify Lake Polygons](#step-4-identify-lake-polygons)
     - [Production Environment](#production-environment)
     - [Summary and Conclusions](#summary-and-conclusions)
   - [Limitations, Improvements](#limitations-improvements)
@@ -56,16 +56,16 @@ The directory of the project consists of the following files:
 ├── config_test.yaml
 ├── data                                        # Original dataset
 │   ├── Scene 1 ...
-│   │   ├── B01_COG.tiff
-│   │   ├── ...
-│   │   ├── B8A_COG.tiff
+│       ├── T32UQU_20230207T101109_B01_20m.jp2
+│       ├── ...
+│       ├── T32UQU_20230207T101109_B8A_20m.jp2
 │   │   ├── lakes.geojson
 │   │   └── processed/                          # Outcomes from processing
 │   │       └── ...
 │   └── Scene 2 ...
-│       ├── B01_COG.tiff
-│       ├── ...
-│       ├── B8A_COG.tiff
+│   │   ├── T32UPU_20230322T101649_B01_20m.jp2
+│   │   ├── ...
+│   │   ├── T32UPU_20230322T101649_B8A_20m.jp2
 │       ├── lakes.geojson
 │       └── processed/                          # Outcomes from processing
 │           └── ...
@@ -79,17 +79,17 @@ The directory of the project consists of the following files:
 ├── requirements.txt                            # Environment dependencies
 ├── results                                     # Final results, taken from data/.../processed
 │   ├── scene_1/
-│   │   ├── B01_COG.tiff
+│   │   ├── T32UQU_20230207T101109_B01_20m.tiff
 │   │   ├── ...
-│   │   ├── B8A_COG.tiff
+│   │   ├── T32UQU_20230207T101109_B8A_20m.tiff
 │   │   ├── ndvi.tiff
 │   │   ├── ndwi.tiff
 │   │   ├── scene_1_lake_polygons.geojson
 │   │   └── scene_1_lake_polygons.png
 │   └── scene_2
-│       ├── B01_COG.tiff
+│       ├── T32UPU_20230322T101649_B01_20m.tiff
 │       ├── ...
-│       ├── B8A_COG.tiff
+│       ├── T32UPU_20230322T101649_B8A_20m.tiff
 │       ├── ndvi.tiff
 │       ├── ndwi.tiff
 │       ├── scene_2_lake_polygons.geojson
@@ -104,7 +104,7 @@ The directory of the project consists of the following files:
 └── vectorize_water_blobs.py                    # Main application file to use the library
 ```
 
-The final result files related to the 4 objectives are located in the folder [`results`](./results/); additionally, the present `README.md` contains the documentation of the project as well as the report with the learned insights. Finally, the [`Slides.pdf`](./Slides.pdf) contain the presentation.
+The final result files related to the 4 steps are located in the folder [`results`](./results/); additionally, the present `README.md` contains the documentation of the project as well as the report with the learned insights. Finally, the [`Slides.pdf`](./Slides.pdf) contain the presentation.
 
 After setting up the correct environment, there are two ways of using/running the project:
 
@@ -213,9 +213,9 @@ After transforming all the data into the CRS of the bands (`EPSG:32630`), a plot
 
 ## Notes on the Solution
 
-In the following, the methods and decisions followed for each objective are described, as well as the major results. Note that the output files are in the folder [`results`](results).
+In the following, the methods and decisions followed for each step are described, as well as the major results. Note that the output files are in the folder [`results`](results).
 
-### Objective 1: Resample, Crop and Persist Rasters
+### Step 1: Resample, Crop and Persist Rasters
 
 Even though *resampling* to the minimum available resolution (60m) is not required in the challenge description, it facilitates many subsequent steps, since all pixelmaps have the same standardized size. That comes with the cost of losing resolution. Additionally, it should be considered that the ultimate maps required to extract the lake polygons (NDVI and NDWI) are computed with bands that share the same resolution, which is larger than the minimum one.
 
@@ -223,7 +223,7 @@ However, I understand that the goal consists in building a valid proof-of-concep
 
 Once the bands are resampled, it is possible to stack them and to work with all of them together. Cropping is easily achieved with rasterio.
 
-Steps implemented to achieve objective 1:
+Steps implemented to achieve step 1:
 
 - Implementation of the function `resample_persist_band()`: given a band path, it resamples and stores it to disk.
 - Resample and save all bands.
@@ -252,7 +252,7 @@ Scene 2 - Cropped band and points:
 
 ![Scene 2: Cropped band and points](./assets/scene_2_geom_crop.jpg)
 
-### Objective 2: Compute the NDVI and the NDWI Maps
+### Step 2: Compute the NDVI and the NDWI Maps
 
 The computation of the NDVI ([Normalized Difference Vegetation Index](https://en.wikipedia.org/wiki/Normalized_difference_vegetation_index)) and the NDWI ([Normalized Difference Water Index](https://en.wikipedia.org/wiki/Normalized_difference_water_index)) is well defined:
 
@@ -267,7 +267,7 @@ However, in the case of the Scene 2, we don't have the Green band (B3) necessary
 
 Unfortunately, that approximate NDWI is not very promising, i.e., only Scene 1 has good quality maps.
 
-Steps implemented to achieve objective 2:
+Steps implemented to achieve step 2:
 
 - Implementation of the function `compute_ndvi()`: given band arrays, compute the NDVI map.
 - Function `compute_ndwi()`: given band arrays, compute the NDWI map.
@@ -291,7 +291,7 @@ Scene 2 - NDWI:
 
 ![Scene 2: NDWI](./assets/scene_2_ndwi.jpg)
 
-### Objective 3: Extract Water Shapes
+### Step 3: Extract Water Shapes
 
 In a regular situation, the NDWI map should be used to detect water bodies: pixels with an index value that passes a known threshold are expected to be water pixels; however, since the Scene 2 has no valid NDWI, I decided to employ the NDVI map instead. The rationale behind using the NDVI is that one could expect vegetation around water bodies &mdash; but, as already mentioned, the results are not convincing.
 
@@ -318,9 +318,9 @@ Scene 2 - Water body polygons:
 
 ![Scene 2: Water body polygons](./assets/scene_2_water_bodies.jpg)
 
-### Objective 4: Identify Lake Polygons
+### Step 4: Identify Lake Polygons
 
-After accomplishing the previous objective, we have a series of polygons that represent candidate water bodies; now, the goal is to select the polygons which contain or are closest to the target points provided in the challenge. Then, the filtered polygons are tagged with the point id.
+After accomplishing the previous step, we have a series of polygons that represent candidate water bodies; now, the goal is to select the polygons which contain or are closest to the target points provided in the challenge. Then, the filtered polygons are tagged with the point id.
 
 Scene 1 yields good results; Scene 2 has small polygons close to the target points, but these are not probably lakes/water bodies.
 
@@ -365,7 +365,7 @@ Currently, only one function is tested; of course, in a regular environment, all
 
 In the following, I provide a list of the submitted deliverables, both required and non-required contributions.
 
-Accomplished main objectives:
+Accomplished main steps:
 
 - [x] Cropped bands (scenes 1 & 2).
 - [x] Computed NDVI and NDWI index maps (scenes 1 & 2).
@@ -425,10 +425,6 @@ Literature:
 
 
 ## Terms of Use, Authorship and License
-
-As stated in the instructions
-
-> [...] The rights to the images remain with the original holder and you must delete them when the project is completed.
 
 All the software files in this work except [`resample_raster.py`](utils/resample_raster.py) are protected by the GPL-v3.0 license; see [`LICENSE.md`](LICENSE.md) for more information. The file [`resample_raster.py`](utils/resample_raster.py) is protected by the [Apache License v2.0 license](http://www.apache.org/licenses/LICENSE-2.0).
 
