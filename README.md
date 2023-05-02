@@ -1,6 +1,6 @@
 # Water Body Vectorization in Satellite Images
 
-In this mini-project, two scenes captured by the Sentinel 2 satellite are processed to end up with vectorized water bodies contained in them. The data for each scene consists of the usual 13 raster bands as well as a Region of Interest (ROI) and a set of target points; each ROI contains the water bodies to vectorize and the points are contained in the water bodies. The vectorization is performed following these steps:
+In this mini-project, two scenes captured by the Sentinel 2 satellite are processed to end up with vectorized water bodies contained in them (the lakes of [Chiemsee](https://en.wikipedia.org/wiki/Chiemsee), [Ammersee](https://en.wikipedia.org/wiki/Ammersee) and [Starnbergersee](https://de.wikipedia.org/wiki/Starnberger_See)). The data for each scene consists of the usual 13 raster bands as well as a Region of Interest (ROI) and a set of target points; each ROI contains the water bodies to vectorize and the points are inside in the water bodies. The vectorization is performed following these steps:
 
 1. Crop all the bands in each scene to their associated ROI.
 2. Compute the NDVI and NDWI maps of the cropped bands.
@@ -14,15 +14,19 @@ This figure shows the RGB image of the scene 1 and its final result (step 4):
   <img src="./assets/scene_1_lake_polygons.png" alt="Identified water body (lake) polygons of scene 1." width=300px>
 </p>
 
-The remainder of this document explains the structure of the repository, how to use it and the reasoning behind the performed analysis to accomplish all steps for both scenes.
+The remainder of this document explains the structure of the repository, how to use it and the reasoning behind the performed analysis to accomplish all steps.
 
-:warning: **Important**: the result files are located in [`results`](results).
+:warning: **Important**: the preliminary result files are located in [`results`](results):
+
+- Scene 1 works properly.
+- Scene 2 need more fine tuning; also, alternative approaches could be used with it, as explained in the section [Step 3: Extract Water Shapes](#step-3-extract-water-shapes).
 
 ## Table of Contents
 
 - [Water Body Vectorization in Satellite Images](#water-body-vectorization-in-satellite-images)
   - [Table of Contents](#table-of-contents)
   - [User Guide](#user-guide)
+    - [Getting the Data](#getting-the-data)
     - [Installing Dependencies for Custom Environments](#installing-dependencies-for-custom-environments)
     - [Running the Notebook](#running-the-notebook)
     - [Run the Python Application Script](#run-the-python-application-script)
@@ -46,15 +50,13 @@ The directory of the project consists of the following files:
 
 ```
 .
-├── Data_Scientist_Challenge_Project.pdf        # Original instructions
 ├── LICENSE.md
 ├── README.md                                   # Documentation + report
-├── Slides.pdf                                  # Presentation
 ├── assets/                                     # Images used in the report, etc.
 │   └── ...
 ├── conda.yaml                                  # Conda environment file (better, use requirements.txt)
 ├── config_test.yaml
-├── data                                        # Original dataset
+├── data                                        # Original dataset, to be downloaded
 │   ├── Scene 1 ...
 │       ├── T32UQU_20230207T101109_B01_20m.jp2
 │       ├── ...
@@ -75,6 +77,7 @@ The directory of the project consists of the following files:
 │   ├── geo_library.py
 │   └── resample_raster.py
 ├── notebooks                                   # Research environment notebook
+│   ├── Setup.ipynb
 │   └── Geospatial_Image_Analysis.ipynb
 ├── requirements.txt                            # Environment dependencies
 ├── results                                     # Final results, taken from data/.../processed
@@ -104,7 +107,7 @@ The directory of the project consists of the following files:
 └── vectorize_water_blobs.py                    # Main application file to use the library
 ```
 
-The final result files related to the 4 steps are located in the folder [`results`](./results/); additionally, the present `README.md` contains the documentation of the project as well as the report with the learned insights. Finally, the [`Slides.pdf`](./Slides.pdf) contain the presentation.
+The final result files related to the 4 steps are located in the folder [`results`](./results/); additionally, the present `README.md` contains the documentation of the project as well as the report with the learned insights.
 
 After setting up the correct environment, there are two ways of using/running the project:
 
@@ -112,6 +115,18 @@ After setting up the correct environment, there are two ways of using/running th
 2. Run the script [`vectorize_water_blobs.py`](vectorize_water_blobs.py) which uses the library [`geo_toolkit`](geo_toolkit) to perform the same processing. The outcome is the same as with the notebook, but in this case the code has been transformed to a production environment following PEP8 conventions, logging, etc. In the script, the `SCENE` needs to be selected, too.
 
 In the following sub-sections, practical commands for setting up the environment and running the application are shown.
+
+### Getting the Data
+
+The dataset is not committed to the Github repository due its large size; however, you can download it from this link:
+
+[https://drive.google.com/drive/folders/1u9zbYNrakPoNVV6bhDj9U2TDEmAAT_Bw?usp=share_link](https://drive.google.com/drive/folders/1u9zbYNrakPoNVV6bhDj9U2TDEmAAT_Bw?usp=share_link)
+
+The folders `scene_1` and `scene_2` should be placed in the local folder `data/`.
+
+Also, note that you can manually download your own dataset from [Copernicus](https://scihub.copernicus.eu). A detailed guide on how to do it can be obtained [here](https://gisgeography.com/how-to-download-sentinel-satellite-data/).
+
+The notebook [`Setup.ipynb`](./notebooks/Setup.ipynb) performs a preliminary analysis of the satellite bands; additionally, the Regions of Interest (ROIs) and target lake points are defined in that notebook after a visual inspection of the scenes. 
 
 ### Installing Dependencies for Custom Environments
 
@@ -173,20 +188,22 @@ NOTE: Here also, we need to choose the value for `SCENE` in the `vectorize_water
 
 ## Dataset and Preliminary Exploration
 
-The dataset consists of two scenes captured by Sentinel 2; these are composed by raster bands with the typical resolutions, ranging from 10m - 60m. In the following, a brief description of each scene is provided. 
+The dataset consists of two scenes from south Germany captured by Sentinel 2; these are composed by raster bands with the typical resolutions, ranging from 10m - 60m.
+
+In the following, a brief description of each scene is provided.
 
 ### Scene 1
 
-Scene 1 consists of the regular 13 [bands captured by Sentinel 2](https://sentinels.copernicus.eu/web/sentinel/user-guides/sentinel-2-msi/resolutions/spectral). Additionally, a region of interest (ROI) with the following coordinates is provided:
+Scene 1 consists of the regular 13 [bands captured by Sentinel 2](https://sentinels.copernicus.eu/web/sentinel/user-guides/sentinel-2-msi/resolutions/spectral). Additionally, a region of interest (ROI) with the following coordinates is defined manually in [`Setup.ipynb`](./notebooks/Setup.ipynb):
 
 ```python
-# Lng/Lat format in EPSG:4326 - WGS84, located in the UK
-SCENE_1_BBOX = [-3.480290297664652, 54.26510479276385, -2.9010711619639267, 54.61995328561707]
+# lng/lat format in EPSG:4326
+SCENE_1_BBOX = [12.276740855204856, 47.76998650888808, 12.830008478699462, 48.06602436853697]
 ```
 
-The supplementary file `lakes.geojson` consists of 3 points contained in that ROI and centered in clearly visible lakes.
+The associated file `lakes.geojson` contains 1 point contained in that ROI and centered in the clearly visible lake of [Chiemsee](https://en.wikipedia.org/wiki/Chiemsee).
 
-After transforming all the data into the CRS of the bands (`EPSG:32630`), a plot of the pixelmaps and their gray-value distributions (histograms) shows that we have data with enough quality to find the polygons of the lakes.
+After transforming all the data into the CRS of the bands (`EPSG:32632`), a plot of the pixelmaps and their gray-value distributions (histograms) shows that we have data with enough quality to work towards the goal of finding the lake.
 
 <p style="text-align:center">
   <img src="./assets/scene_1_bands.jpg" alt="Scene 1: Bands." width=500px>
@@ -195,16 +212,14 @@ After transforming all the data into the CRS of the bands (`EPSG:32630`), a plot
 
 ### Scene 2
 
-Scene 2 consists of 11 band rasters; the bands 3 (Green) and 5 (NIR, near infrared) are missing. That makes difficult the computation of the NDWI map, which is the default way of detecting water bodies.
-
-Similarly to scene 1, a `lakes.geojson` is provided with 2 points and a ROI in which those points are contained:
+Scene 2 is analogous to scene 1, but it contains the lakes of [Ammersee](https://en.wikipedia.org/wiki/Ammersee) and [Starnbergersee](https://de.wikipedia.org/wiki/Starnberger_See), marked with points defined in the associated file `lakes.geojson`; the ROI is:
 
 ```python
-# Lng/Lat format in EPSG:4326 - WGS84, located in the UK
-SCENE_2_BBOX = [-2.815247, 55.102730, -1.450195, 55.553495]
+# lng/lat format in EPSG:4326
+SCENE_2_BBOX = [10.9448829067118, 47.73548843800481, 11.393297391882829, 48.143490914959585]
 ```
 
-After transforming all the data into the CRS of the bands (`EPSG:32630`), a plot of the pixelmaps and their gray-value distributions (histograms) shows that the band 10 (SWIR, short wave infrared) has a very narrow histogram/distribution; that decreases the amount of information that can be extracted from it. However, this band is not used in the rest of the project.
+Again, we need to transform all the data into the CRS of the bands (`EPSG:32632`). Next figures show a plot of the pixelmaps and their gray-value distributions (histograms).
 
 <p style="text-align:center">
   <img src="./assets/scene_2_bands.jpg" alt="Scene 2: Bands." width=500px>
@@ -217,13 +232,13 @@ In the following, the methods and decisions followed for each step are described
 
 ### Step 1: Resample, Crop and Persist Rasters
 
-Even though *resampling* to the minimum available resolution (60m) is not required in the challenge description, it facilitates many subsequent steps, since all pixelmaps have the same standardized size. That comes with the cost of losing resolution. Additionally, it should be considered that the ultimate maps required to extract the lake polygons (NDVI and NDWI) are computed with bands that share the same resolution, which is larger than the minimum one.
+Even though *resampling* to the minimum available resolution (60m) is not necessary, it facilitates many subsequent steps, since all pixelmaps have the same standardized size. That comes with the cost of losing resolution. Additionally, it should be considered that the ultimate maps required to extract the lake polygons (NDVI and NDWI) are computed with bands that share the same resolution, which is larger than the minimum one.
 
-However, I understand that the goal consists in building a valid proof-of-concept and showing my skills, therefore, I have decided to choose the most comfortable path: resampling to the minimum resolution in the notebooks. In the package/scripts, the resampling can be easily switched off.
+Note that in the package/scripts, the resampling can be easily switched off.
 
 Once the bands are resampled, it is possible to stack them and to work with all of them together. Cropping is easily achieved with rasterio.
 
-Steps implemented to achieve step 1:
+Actions implemented to achieve step 1:
 
 - Implementation of the function `resample_persist_band()`: given a band path, it resamples and stores it to disk.
 - Resample and save all bands.
@@ -259,13 +274,13 @@ The computation of the NDVI ([Normalized Difference Vegetation Index](https://en
     NDVI = (NIR - Red) / (NIR + Red) = (B8 - B4) / (B8 + B4)
     NDWI = (Green - NIR) / (Green + NIR) = (B3 - B8) / (B3 + B8)
 
-However, in the case of the Scene 2, we don't have the Green band (B3) necessary to compute the NDWI; one workaround consists in using a shortwave infrared (SWIR) band (i.e., B11 or B12) and the near infrared band (B8 or B8A):
+In case we didn't have the Green band (B3) necessary to compute the NDWI we could use a shortwave infrared (SWIR) band (i.e., B11 or B12) and the near infrared band (B8 or B8A):
 
     NDWI = (NIR - SWIR) / (NIR + SWIR) (approx.)
     NDWI = (B8A - B12) / (B8A + B12) (approx.)
     NDWI = (B8A - B11) / (B8A + B11) (approx.)
 
-Unfortunately, that approximate NDWI is not very promising, i.e., only Scene 1 has good quality maps.
+However, that is not necessary in with the analyzed scenes.
 
 Steps implemented to achieve step 2:
 
@@ -293,9 +308,7 @@ Scene 2 - NDWI:
 
 ### Step 3: Extract Water Shapes
 
-In a regular situation, the NDWI map should be used to detect water bodies: pixels with an index value that passes a known threshold are expected to be water pixels; however, since the Scene 2 has no valid NDWI, I decided to employ the NDVI map instead. The rationale behind using the NDVI is that one could expect vegetation around water bodies &mdash; but, as already mentioned, the results are not convincing.
-
-In contrast, the implemented generic approach works correctly for Scene 1 (but using the NDWI map, as it should be the case).
+In a regular situation, the NDWI map should be used to detect water bodies: pixels with an index value that passes a known threshold are expected to be water pixels; however, the NDWI map of Scene 2 is not as homogeneous as expected.
 
 In case the NDWI or the relevant bands have a low quality, other approaches are worth trying to extract water bodies:
 
@@ -322,7 +335,7 @@ Scene 2 - Water body polygons:
 
 After accomplishing the previous step, we have a series of polygons that represent candidate water bodies; now, the goal is to select the polygons which contain or are closest to the target points provided in the challenge. Then, the filtered polygons are tagged with the point id.
 
-Scene 1 yields good results; Scene 2 has small polygons close to the target points, but these are not probably lakes/water bodies.
+Scene 1 yields good results; in contrast, the lakes in Scene 2 are incomplete.
 
 The following steps are taken to id the polygons:
 
@@ -370,18 +383,13 @@ Accomplished main steps:
 - [x] Cropped bands (scenes 1 & 2).
 - [x] Computed NDVI and NDWI index maps (scenes 1 & 2).
 - [x] Extracted water body shapes (scene 1; results for scene 2 are not that promising)
-- [x] Processed the water body shapes according to the GeoJSON (scenes 1 & 2; the polygons for scene 2 are probably not correct because the input blobs are not good).
+- [x] Processed the water body shapes according to the GeoJSON (scenes 1 & 2; the polygons for scene 2 are not correct because the input blobs are not good).
 
-Additional, required:
+Additional contributions:
 
 - [x] Documented project.
   - [x] Interpretation.
   - [x] Decisions: methods, tools.
-- [x] Report
-- [x] Slides.
-
-Extra contributions, non-required:
-
 - [x] Python package: PEP8-conform, linted.
 - [x] Testing with Pytest.
 - [x] Logging.
@@ -391,10 +399,9 @@ Extra contributions, non-required:
 - Persisting images in different stages: not really necessary?
 - Try histogram equalization for band 10?
 - Resampling: make it clearly optional.
-- NDWI of scene 2: seems useless; I decided to work with the NDVI, which is conceptually wrong.
-- Try other approaches to detect water bodies in scene 2; see for instance [space_exploration](https://github.com/mxagar/space_exploration).
+- NDWI of scene 2: it has lesser quality but still seems usable. Try other approaches to detect water bodies in scene 2; see for instance [space_exploration](https://github.com/mxagar/space_exploration).
   - Tasseled cap transformation.
-  - Create a pixel-wise classification model.
+  - Create a pixel-wise classification model based on the data in scene 1.
 - Refactor: functions one-task only, OOP, SOLID principles, etc.
 - Configuration file for the production environment, similar to [`config_test.yaml`](./config_test.yaml)
 - Flask web app; see for instance [disaster_response_pipeline](https://github.com/mxagar/disaster_response_pipeline).
@@ -402,11 +409,10 @@ Extra contributions, non-required:
 
 ## References, Links and Assets
 
-General links/assets related to the job opening:
+General links/assets:
 
-- [Open Cosmos](https://www.open-cosmos.com/)
-- [Open Cosmos: Data Scientist (Job Opening)](./assets/OpenCosmos_DataScientist_JobOpening.pdf)
 - [chrieke/awesome-geospatial-companies](https://github.com/chrieke/awesome-geospatial-companies)
+- [How to Download Free Sentinel Satellite Data](https://gisgeography.com/how-to-download-sentinel-satellite-data/)
 
 Resources:
 
