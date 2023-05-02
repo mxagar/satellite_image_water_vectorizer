@@ -416,11 +416,10 @@ General links/assets:
 
 Resources:
 
+- My notes on how to process satellite images and geo-spatial data: [space_exploration](https://github.com/mxagar/space_exploration)
 - [Rasterio documentation](https://rasterio.readthedocs.io/en/stable/)
 - [EarthPy documentation](https://earthpy.readthedocs.io/en/latest/index.html)
 - [Sentinel 2 bands](https://sentinels.copernicus.eu/web/sentinel/user-guides/sentinel-2-msi/resolutions/spectral)
-- [Supported raster formats](https://gdal.org/drivers/raster/index.html)
-- [Supported vector formats](https://gdal.org/drivers/vector/)
 - [`resample_raster.py`](https://gist.github.com/lpinner/13244b5c589cda4fbdfa89b30a44005b)
 - [Sentinel 2 Bands and Combinations](https://gisgeography.com/sentinel-2-bands-combinations/)
 - Some toy tests/examples with geospatial datasets: [space_exploration](https://github.com/mxagar/space_exploration)
